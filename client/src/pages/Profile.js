@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
 import { catchErrors } from '../utils';
-import { getCurrentUserProfile, getCurrentUserPlaylists } from '../spotify';
+import { getCurrentUserProfile, getCurrentUserPlaylists, getTopArtists } from '../spotify';
+import { SectionWrapper, ArtistsGrid } from '../components';
 import { StyledHeader } from '../styles';
 
 const Profile = () => {
   const [profile, setProfile] = useState(null);
   const [playlists, setPlaylists] = useState(null);
+  const [topArtists, setTopArtists] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -14,11 +16,24 @@ const Profile = () => {
 
       const userPlaylists = await getCurrentUserPlaylists();
       setPlaylists(userPlaylists.data);
+
+      const userTopArtists = await getTopArtists();
+      setTopArtists(userTopArtists);
     };
 
     catchErrors(fetchData());
   }, []);
 
+  const logTopArtists = () => {
+    try {
+      console.log(topArtists.data.items.slice(0, 10));
+    } catch (e) {
+      console.error(e);
+    };
+  }
+
+  logTopArtists();
+  
   return (
     <>
       {profile && (
@@ -32,6 +47,9 @@ const Profile = () => {
                 <div className="header__overline">Profile</div>
                 <h1 className="header__name">{profile.display_name}</h1>
                 <p className="header__meta">
+                  {playlists && (
+                    <span>{playlists.total} Playlist{playlists.total !== 1 ? 's' : ''}</span>
+                  )}
                   <span>
                     {profile.followers.total} Follower{profile.followers.total !== 1 ? 's' : ''}
                   </span>
@@ -39,6 +57,12 @@ const Profile = () => {
               </div>
             </div>
           </StyledHeader>
+
+          {topArtists && (
+            <>
+              <h1>hi</h1>
+            </>
+          )}
         </>
       )}
     </>
